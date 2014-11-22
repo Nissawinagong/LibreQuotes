@@ -1,5 +1,5 @@
 Const QUOTE_SHEET 	as String 	= "Link" 
-Const START_ROW 	as Integer 	= 0
+Const START_ROW 	as Integer 	= 1
 Const END_ROW		as Integer 	= 1000
 
 Sub updateQuotes
@@ -40,7 +40,7 @@ Sub updateQuotes
 
 		' see http://www.seangw.com/wordpress/2010/01/formatting-stock-data-from-yahoo-finance/
 		baseUrl = "http://finance.yahoo.com/d/quotes.csv?s=" 
-		quoteFormat = "&f=sl1nld1cc1p2va2ipomws7r1qdyj1" 
+		quoteFormat = "&f=sl1d1pva2qdyn"
 		url = baseUrl & allSymbols & quoteFormat
 		
 		filter = "Text - txt - csv (StarCalc)"
@@ -48,6 +48,19 @@ Sub updateQuotes
 
 		quoteSheet.LinkMode = com.sun.star.sheet.SheetLinkMode.NONE
 		quoteSheet.link(url, "", filter, options, 1 )  
+		
+		' probably a better way to do this using the filter and options above
+		quoteSheet.Rows.insertByIndex(0,1) ' this seems to overwrite rather than insert...
+		quoteSheet.getCellByPosition(0,0).String = "Symbol"
+		quoteSheet.getCellByPosition(1,0).String = "Value"
+		quoteSheet.getCellByPosition(2,0).String = "Last Trade Date"
+		quoteSheet.getCellByPosition(3,0).String = "Previous Close"
+		quoteSheet.getCellByPosition(4,0).String = "Volume"
+		quoteSheet.getCellByPosition(5,0).String = "Average Volume"
+		quoteSheet.getCellByPosition(6,0).String = "Ex Div Date"
+		quoteSheet.getCellByPosition(7,0).String = "Div / Share"
+		quoteSheet.getCellByPosition(8,0).String = "Div Yield"
+		quoteSheet.getCellByPosition(9,0).String = "Name"
 	
 		saveAndReload
 	End If
