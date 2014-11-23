@@ -68,12 +68,36 @@ End Sub
 
 
 Function checkQuote (stockSymbol as String) as Double
-	'checkQuote = 0 	' Having this resets the quote to zero if the symbol is not found.
+	checkQuote = getSymbolData (stockSymbol, 1)
+End Function
+
+Function getQuoteDate (stockSymbol as String) as Date
+	getQuoteDate = getSymbolData (stockSymbol, 2)
+End Function
+
+Function getPrevious (stockSymbol as String) as Double
+	getPrevious = getSymbolData (stockSymbol, 3)
+End Function
+
+Function todayQuote (stockSymbol as String) as Integer ' for some reason AND() doesn't seem to work with Boolean, so use Integer (0/1) instead
+	' improve this to account for the last trading day...
+	' just base off the most recent of all quotes?
+	' or use work day functions?
+	If Date = getQuoteDate(stockSymbol) Then
+		todayQuote = 1
+	Else
+		todayQuote = 0
+	End If
+End Function
+
+Function getSymbolData (stockSymbol as String, dataIndex as Integer) as Double
+	'getSymbolData = 0 	' Having this resets the quote to zero if the symbol is not found.
 						' If updating quotes fails, this may happen and reset all values to o.
 						' Do nothing here to just leave the prior quotes.
 						
-	If "" = stockSymbol Then
+	If "0" = stockSymbol Then
 		' protect against bad cells in the sheet
+		Msgbox "No data retrieved for zero symbol"
 		exit Function
 	End If
 
@@ -87,11 +111,10 @@ Function checkQuote (stockSymbol as String) as Double
 		symbolToCheck = quoteSheet.getCellByPosition(0,i).String
 		If symbolToCheck = stockSymbol Then
 			' symbol found, get value
-			checkQuote = quoteSheet.getCellByPosition(1,i).Value 
+			getSymbolData = quoteSheet.getCellByPosition(dataIndex,i).Value 
 			exit do
 		ElseIf "" = symbolToCheck Then
-			' symbol not found before end (empty cells), initialize value to 0 and add it to the sheet
-			checkQuote = 0.0
+			' symbol not found before end (empty cells), add it to the sheet
 			quoteSheet.getCellByPosition(0,i).String = stockSymbol
 			Msgbox "Value not found for Symbol: " & stockSymbol & chr(13) & "You can try running updateQuotes to get a value for it"
 			exit do
