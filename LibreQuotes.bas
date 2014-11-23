@@ -51,6 +51,7 @@ Sub updateQuotes
 		
 		' probably a better way to do this using the filter and options above
 		quoteSheet.Rows.insertByIndex(0,1) ' this seems to overwrite rather than insert...
+
 		quoteSheet.getCellByPosition(0,0).String = "Symbol"
 		quoteSheet.getCellByPosition(1,0).String = "Value"
 		quoteSheet.getCellByPosition(2,0).String = "Last Trade Date"
@@ -62,6 +63,22 @@ Sub updateQuotes
 		quoteSheet.getCellByPosition(8,0).String = "Div Yield"
 		quoteSheet.getCellByPosition(9,0).String = "Name"
 	
+		quoteSheet.getCellByPosition(10,0).String = "Most Recent Quote"
+		Dim mostRecent as Double
+		mostRecent = 0
+		i = START_ROW
+		Do While i < END_ROW 'this should alway exit on it's own, but set a limit just in case
+			Dim valueToCheck as Double
+			valueToCheck = quoteSheet.getCellByPosition(2,i).Value
+			If valueToCheck = 0 Then
+				exit do
+			ElseIf valueToCheck > mostRecent Then
+				mostRecent = valueToCheck
+			End If
+			i = i+1
+		Loop
+		quoteSheet.getCellByPosition(11,0).Value = mostRecent
+
 		saveAndReload
 	End If
 End Sub
@@ -71,7 +88,7 @@ Function checkQuote (stockSymbol as String) as Double
 	checkQuote = getSymbolData (stockSymbol, 1)
 End Function
 
-Function getQuoteDate (stockSymbol as String) as Date
+Function getQuoteDate (stockSymbol as String) as Double
 	getQuoteDate = getSymbolData (stockSymbol, 2)
 End Function
 
@@ -80,10 +97,10 @@ Function getPrevious (stockSymbol as String) as Double
 End Function
 
 Function todayQuote (stockSymbol as String) as Integer ' for some reason AND() doesn't seem to work with Boolean, so use Integer (0/1) instead
-	' improve this to account for the last trading day...
-	' just base off the most recent of all quotes?
-	' or use work day functions?
-	If Date = getQuoteDate(stockSymbol) Then
+	Dim quoteSheet as Object
+	quoteSheet = getSheetAdd(QUOTE_SHEET) 
+
+	If quoteSheet.getCellByPosition(11,0).Value = getQuoteDate(stockSymbol) Then
 		todayQuote = 1
 	Else
 		todayQuote = 0
